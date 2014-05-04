@@ -1,0 +1,1047 @@
+<!doctype html>
+<html lang="en">    
+<head>
+    <meta charset="utf-8">
+    <title>Roll Your Own</title>
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/night.css" id="theme">    
+    <link rel="stylesheet" href="css/matt.css">
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    <!--Add support for earlier versions of Internet Explorer -->
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+ 
+<body>
+<!-- Wrap the entire slide show in a div using the "reveal" class. -->
+<div class="reveal">
+    <!-- Wrap all slides in a single "slides" class -->
+    <div class="slides">
+ 
+        <!-- ALL SLIDES GO HERE -->
+        <!-- Each section element contains an individual slide -->
+<section>
+  <h2>Roll Your Own Dashboard</h2>
+  <p>With StatsD and Graphite</p>
+</section>
+ 
+<section data-background="./images/port.jpg" class="bg">
+  <h2>Introduction</h2>
+  <ul>
+    <li>Everyone writes code</li>
+    <li>You will learn how to build dashboards with Graphite</li>
+    <li>You will learn some gotchas and advanced things as well</li>
+  </ul>
+</section>
+<section>
+  <h2>How To Use This Presentation</h2>
+  <ul>
+    <li>We will move quickly</li>
+    <li>Follow Along In Your Browser</li>
+    <li>All supporting documents and code are on GitHub</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Go Here Now</h2>
+  <p><a href="http://mattjbarlow.com/devopsdays/">mattjbarlow.com/devopsdays</a></p>
+  <p><a href="http://github.com/mattjbarlow/devopsdays-statsd-graphite">github.com/mattjbarlow/devopsdays-statsd-graphite</a></p>
+<aside class="notes">
+Yellow notes mean links.
+</aside>
+
+</section>
+
+<section>
+  <h2>How To Communicate</h2>
+  <ul>
+    <li><a href="https://twitter.com/mattjbarlow">@mattjbarlow</a> on Twitter</li>
+    <li>@mattjbarlow on Freenode</li>
+    <li>mail@mattjbarlow.com</li>
+  </ul>
+<aside class="notes">
+#rackspace channel on Freenode.
+</aside>
+
+</section>
+
+<section>
+  <h2>Table of Contents</h2>
+  <ol>
+    <li>Overview of Graphite and StatsD</li>
+    <li>Use Cases</li>
+    <li>Installation: Manual and Docker</li>
+    <li>The Graphite UDP Packet</li>
+    <li>The Graphite Web Interface</li>
+    <li>The Power of Graphite Functions</li>
+    <li>Getting More Data into Graphite</li>
+    <li>Deconstruction</li>
+    <li>Gotchas</li>
+    <li>What's Next?</li>
+  </ol>
+<aside class="notes">
+You are going to learn everything you need to build StatsD and
+Graphite and start sending metrics to it.
+</aside>
+</section>
+
+<section data-background="./images/graphene.jpg" class="bg">
+  <h2>Overview of Graphite and StatsD</h2>
+  <ol>
+    <li>What it is</li>
+    <li>Why Graphite is awesome</li>
+    <li>StatsD is cool, too</li>
+  </ol>
+</section>
+
+<section>
+  <h2>The Old Way</h2>
+<img class="stretch" src="./images/mrtg.png"></img>
+<aside class="notes">
+MRTG is written in perl by Toby Oetiker. Uses SNMP. Written in
+1994. Multi Router Traffic Graph.
+</aside>
+</section>
+
+<section>
+  <h2>The New Way</h2>
+<img src="./images/mrr.png"></img>
+</section>
+
+<section>
+  <h2>What Graphite Is</h2>
+  <img class="stretch" src="./images/graphite.png"></img>
+</section>
+
+<section>
+  <h2>What StatsD Is</h2>
+  <img class="stretch" src="./images/statsd.png"></img>
+<aside class="notes">
+A few hundred lines of javascript. Use it for high frequency metrics.
+</aside>
+</section>
+
+<section>
+  <h2>Why StatsD and Graphite Are Awesome</h2>
+</section>
+
+<section>
+  <h2>RRD Database Structure</h2>
+  <img src="./images/rrd.png"></img>
+  <p>Circular Buffer means Fixed Size</p>
+<aside class="notes">
+You can put all kinds of data in here.
+</aside>
+</section>
+
+<section>
+  <h2>Powerful Functions</h2>
+  <pre>
+http://graphite01.mattjbarlow.com/render?
+from=-12hour&
+until=now&
+width=800&
+height=250&
+target=stats_counts.keystroke&
+lineMode=connected&
+target=drawAsInfinite(events
+  ("Pomodoro")))
+  </pre>
+  <img class="stretch" src="./images/keycounts.png"></img>
+<aside class="notes">
+You can manipulate that data in almost endless ways.
+</aside>
+</section>
+
+<section>
+  <h2>Turn Data into Knowledge</h2>
+    <img src="./images/sums.png"></img>
+    <p>Sums and Histograms</p>
+<aside class="notes">
+Know how many times an event happens per second, per hour, per day, etc.
+</aside>
+</section>
+
+<section>
+  <h2>Turn Data into Power</h2>
+    <img src="./images/overlay.png"></img>
+    <p>Overlays</p>
+<aside class="notes">
+2nd Y Axis
+</aside>
+</section>
+
+<section data-background="./images/json.png" class="bg">
+  <h2>Easy In and Easy Out</h2>
+  <ol>
+    <li>POST Events</li>
+    <li>Realtime</li>
+    <li>JSON, RAW, and CSV Output</li>
+    <li>JSONP Support</li>
+    <li>Dozens of Community Tools</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Open Source</h2>
+  <ol>
+    <li>Self Host Your Own Data</li>
+    <li>Avoid Lock in</li>
+    <li>Mature and Active</li>
+  </ol>
+  <p><img src="./images/apache.gif"></img></p>
+</section>
+
+<section>
+  <h2>StatsD is Cool, Too</h2>
+  <ol>
+    <li>Client Libraries in Every Language</li>
+    <li>No TCP Overhead</li>
+    <li>Nice Telnet Management Console</li>
+  </ol>
+  <p><img src="./images/statsd_management.png"></img></p>
+<aside class="notes">
+Yes, you will see my dirty little secret that I run most of my
+commands as root. These are all throwaway servers and have been
+deleted.
+</aside>
+</section>
+
+<section data-background="./images/4minutes.jpg" class="bg">
+  <h2>Annoyances</h2>
+  <ul>
+    <li>Features Not Always Implemented All The Way</li>
+    <li>Steep Learning Curve</li>
+    <li>Lots of dependencies</li>
+    <li>Gotchas Can Bite You Too Late</li>
+    <li>Write Intensive</li>
+    <li>Web Interface Usability and Auth</li>
+    <li>Case sensitive programming in the URL Bar</li>
+  </ul>
+<aside class="notes">
+JSONP is undocumented. Events is not known very well. Histogram
+support, etc. Changes quickly and lots of contributors.
+</aside>
+</section>
+
+<section>
+  <h2>Metric Types</h2>
+  <p align="left"><strong>Raw Graphite: metric_path value timestamp\n:</strong></p>
+  <pre>foo.bar.baz 42 74857843</pre>
+  <p align="left"><strong>Counters:</strong></p>
+  <pre>StatsClient().incr(stat, count=1, rate=1)</pre>
+  <pre>'stats.' + key + ' ' + valuePerSecond + ' ' + ts + "\n";</pre>
+  <pre>'stats_counts.' + key + ' ' + value + ' ' + ts + "\n";</pre>
+  <p align="left"><strong>Timers</strong></p>
+  <pre>StatsClient().timing(stat, delta, rate=1)</pre>
+  <p align="left"><strong>Gauges</strong></p>
+  <pre>StatsClient().gauge(stat, value, rate=1, delta=False)</pre>
+<aside class="notes">
+Sample rate tells StatsD that your application is only sending data a
+certain percentage of the time. You can do this to avoid overwhelming
+the StatsD server with UDP.
+</aside>
+</section>
+
+<section>
+  <h2>Counter Example</h2>
+  <font size="6">
+  <pre><code>
+  c = StatsClient(host=secrets.GRAPHITE_URL, port=8126, prefix=None)
+  c.incr('keystroke', count=1, rate=1)
+  </code></pre>
+  </font>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Timer Example</h2>
+  <font size="6">
+  <pre><code data-trim>
+def self.query(search_item="pizza")
+  starttime = Time.now
+  result = Twitter.search(search_item, :count => 10, :result_type => "recent").results.first
+  tweettime = ((Time.now - starttime) * 1000).to_i
+  METRICS.timing('tweetsearch.query', tweettime)
+  return result
+end
+  </code></pre>
+  </font>
+
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Gauge Example</h2>
+  <pre><code>
+ps = subprocess.Popen(('ps', 'aux'), stdout=subprocess.PIPE)
+output = subprocess.check_output(('wc', '-l'), stdin=ps.stdout)
+output = re.match(r'(?:^\s*)(\d.*$)', output).group(1)
+
+c = statsd.StatsClient('STATSD_SERVER_IP', 8125)
+c.gauge('{}.processes'.format(args.servername), output)
+  </code></pre>
+<aside class="notes">
+Gauges only flush the last value in StatsD.
+</aside>
+</section>
+
+<section data-background="./images/navigation.jpg" class="bg">
+  <h2>Use Cases</h2>
+  <ol>
+    <li>Performance Measurement</li>
+    <li>Team Metrics</li>
+    <li>Quantified Self</li>
+    <li>Alerting</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Performance Data</h2>
+  <p><img src="./images/workload.png"></img></p>
+  <ol>
+    <li>Workload Performance</li>
+    <li>Resource Performance</li>
+    <li>Benchmarking</li>
+  </ol>
+<aside class="notes">
+Overlaying workload (application) and resource (infrastructure)
+measurements is powerful.
+</aside>
+</section>
+
+<section data-background="./images/push.png" class="bg">
+  <h2>Quantified Teams</h2>
+  <ol>
+    <li>Push Events</li>
+    <li>Build Failures</li>
+    <li>Pull Requests</li>
+    <li>Code Coverage</li>
+    <li>Aggregating C.I.</li>
+    <li>Events</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Quantified Self</h2>
+  <ol>
+    <li>Keystrokes</li>
+    <li>Emails Sent</li>
+    <li>TODO Completions</li>
+  </ol>
+  <p><img src="./images/pushes.png"></img></p>
+<aside class="notes">
+On this page I have keystrokes per second with Pomodoros overlayed on top.
+</aside>
+</section>
+
+<section>
+  <h2>Alerting</h2>
+  <ul>
+    <li><a href="https://github.com/olivierHa/check_graphite">Nagios</a></li>
+    <li><a href="http://imansson.wordpress.com/2012/10/05/graphite-and-sensu/">Sensu</a></li>
+    <li><a href="https://github.com/rackspace-cookbooks/rackspace_statsdGraphite">Cloud Monitoring</a></li>
+    <li>Protip: Use keepLastValue()</li>
+  </ul>
+  <p><img src="./images/none.png"></img></p>
+<aside class="notes">
+In the interval between when a new timestamp bucket begins, and StatsD has flushed its data, a None value will appear.
+</aside>
+</section>
+
+<section>
+  <h2>Having Fun</h2>
+  <ul>
+    <li>Hack all the things and send everything</li>
+  </ul>
+<aside class="notes">
+We all write lots of scripts. Send everything to StatsD.
+</aside>
+</section>
+
+<section>
+  <h2>Python Keystroke Counter</h2>
+  <img src="./images/keycounts.png"></img>
+  <p>Keystrokes Per Second</p>
+  <img class="stretch" src="./images/dwmbar.gif"></img>
+  </ul>
+<aside class="notes">
+We all want to beat a number.
+</aside>
+</section>
+
+<section>
+  <h2><a href="https://github.com/mattjbarlow/keystrokes">Key Counter Code</a></h2>
+<pre><code class="stretch">
+c = StatsClient(host=secrets.GRAPHITE_URL, port=8126, prefix=None)
+
+dev = InputDevice('/dev/input/event0')
+
+for event in dev.read_loop():
+  if event.type == ecodes.EV_KEY:
+    if event.value == 01:
+      c.incr('keystroke', count=1, rate=1)
+</code></pre>
+
+<aside class="notes">
+</aside>
+
+</section>
+
+<section data-background="./images/space.jpg" class="bg">
+  <h2>Installing Graphite and StatsD</h2>
+  <ul>
+    <li>Deployments</li>
+    <li>Docker</li>
+    <li>Ansible and Docker</li>
+    <li>Manual</li>
+    <li>Security</li>
+  </ul>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Deployments</h2>
+<p><a href="http://mattjbarlow.com/graphite/howto/2014/05/04/Install-StatsD-and-Graphite-with-Deployments.html">Install Graphite with Deployments</a></p>
+  <img class="stretch" src="./images/deployment.gif"></img>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Docker</h2>
+<p><a href="http://mattjbarlow.com/graphite/howto/2014/05/04/Install-StatsD-and-Graphite-with-Docker.html">Install Graphite with Docker</a></p>
+<pre><code data-trim>
+# docker.io pull mattjbarlow/graphite
+
+# docker.io run -d -p 80:80 -p 2003:2003 -p 8125:8125/udp \
+  -p 8126:8126 -v /var/log/graphite:/var/log -v \
+  /opt/graphite/storage -v /opt/graphite/conf \
+  mattjbarlow/graphite /opt/hopsoft/graphite-statsd/start
+</code></pre>
+
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Docker</h2>
+<p><a href="http://mattjbarlow.com/graphite/howto/2014/05/04/Install-StatsD-and-Graphite-with-Docker.html">Install Graphite with Docker</a></p>
+<img class="stretch" src="./images/docker.gif"></img>
+<aside class="notes">
+</aside>
+</section>
+
+
+<section>
+  <h2>Ansible and Docker</h2>
+<p><a href="http://mattjbarlow.com/graphite/howto/2014/05/04/Install-StatsD-and-Graphite-with-Ansible-and-Docker.html">Install Graphite with Ansible and Docker</a></p>
+<img class="stretch" src="./images/ansible.gif"></img>
+<aside class="notes">
+Use Ansible to deploy Docker host and build the Ansible container.
+</aside>
+</section>
+
+<section>
+  <h2>Manual</h2>
+<p>Are you sure you want to <a href="http://mattjbarlow.com/graphite/howto/2014/05/03/Manual-StatsD-and-Graphite-Install.html">Install StatsD and Graphite Manually?</a></p>
+
+<aside class="notes">
+Rather than putting yourself through the pain of doing it manually, I'd rather you reach out to me to help you build out an automated install.
+</aside>
+</section>
+
+<section>
+  <h2>Security</h2>
+<ul>
+  <li>Bind Django and Carbon to private IP [0]</li>
+  <li>UDP is susceptible to spoofing attacks</li>
+  <li>Better to run StatsD on each application server</li>
+  <li>Set the Graphite Admin password [1]</li>
+  <li>Use <a href="https://www.digitalocean.com/community/articles/how-to-set-up-http-authentication-with-nginx-on-ubuntu-12-10">HTTP Authentication</a> to protect /opt/graphite/webapp</li>
+  <li>Use IPTables to restrict access to carbon and StatsD ports</li>
+  </ul>
+<br /><br />
+<hr />
+<p align="left">[0] update LINE_RECEIVER_INTERFACE in carbon.conf for ports 2003 and 2004</p>
+<p align="left">[1] python manage.py changepassword root</p>
+
+<aside class="notes">
+Restrict access to the IPs that send data to it.
+</aside>
+</section>
+
+<section>
+  <h2>Tracing A UDP Packet</h2>
+  <ul>
+    <li>echo "testupd:1|c" | nc -w 1 -u SERVER_URL 8125</li>
+    <li>Log into server and telnet localhost 8126</li>
+    <li>Type "counters" to see your testudp counter</li>
+    <li>When it goes away, use whisper-fetch.py to find it in the database</li>
+  </ul>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Tracing the UDP Packet</h2>
+  <img class="stretch" src="./images/trace_udp.gif"></img>
+<aside class="notes">
+</aside>
+</section>
+
+<section data-background="./images/dashboard.jpg" class="bg">
+  <h2>The Graphite Dashboard</h2>
+  <ul>
+    <li>The GUI</li>
+    <li>Adding Functions</li>
+    <li>Saving Dashboards</li>
+    <li>Right Click and View Image</li>
+    <li>Manipulate URL</li>
+    <li>Bookmark Graphs</li>
+    <li>Create Your Dashboard Page</li>
+  </ul>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>The GUI</h2>
+  <p><img src="./images/graphite_fe.png"></img>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Adding Functions</h2>
+  <p><img class="stretch" src="./images/gui_function.gif"></img></p>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Saving Your Dashboard</h2>
+  <p><img class="stretch" src="./images/forecasting.gif"></img></p>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Viewing The Image</h2>
+  <p><img src="./images/url.gif"></img></p>    
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>graphiteurl.com</h2>
+  <p>Programming in the URL Bar :(</p>
+  <p><img src="./images/url_editing.gif"></img></p>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>graphiteurl.com</h2>
+  <p>This web tool makes it easier :)</p>
+  <p><img src="./images/graphiteurl.gif"></img></p>
+<aside class="notes">
+</aside>
+</section>
+
+<section data-background="./images/function.png" class="bg">
+  <h2>Common Graphite Functions</h2>
+  <ul>
+    <li>alias()</li>
+    <li>movingAverage()</li>
+    <li>secondYAxis()</li>
+    <li>timeShift()</li>
+    <li>drawAsInfinite()</li>
+    <li>hitcount()</li>
+    <li>integral() and derivitive()</li>
+  </ul>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Alias Function</h2>
+  <p><img class="stretch" src="./images/alias.png"></img></p>
+   <pre>&target=alias(stats_counts.keystroke, "Key Strokes")</pre>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>secondYAxis Function</h2>
+  <p><img class="stretch" src="./images/secondyaxis.png"></img></p>
+  <font size="6">
+  <pre>&target=alias(*.agents.graphite-a.cpuUsage, "cpu")&
+target=alias(secondYAxis(*.timers.tweetsearch.query.mean), "tweets")</pre>
+  </font>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>drawAsInfinite</h2>
+  <p><img src="./images/todo.png"></img></p>
+  <font size="6">
+  <pre>&target=stats_counts.keystroke&lineMode=connected&target=drawAsInfinite(events("Pomodoro"))</pre>
+  </font>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Timeshift</h2>
+  <ul>
+    <li>timeShift() image</li>
+  </ul>
+  <p><img src="./images/timeshift.png"></img></p>
+<pre>&target=color(summarize(stats_counts.keystroke%2C'1hour')%2C'64DD0E')&
+areaMode=stacked&lineMode=staircase&
+target=summarize(timeShift(stats_counts.keystroke%2C'1hour)%2C'1hour')&
+areaMode=stacked&
+lineMode=staircase&
+target=summarize(timeShift(stats_counts.keystroke%2C'1hour')%2C'1hour')&
+areaMode=stacked&
+lineMode=staircase</pre>
+<aside class="notes">
+</aside>
+</section>
+
+
+<section data-background="./images/Operations.jpg" class="bg">
+  <h2>Getting More Data into Graphite</h2>
+  <ul>
+    <li>CollectD</li>
+    <li>Sending Events with Curl</li>
+    <li>Python snippet</li>
+    <li>Ruby snippet</li>
+    <li>Gith Webhook</li>
+    <li>Sending Historical Data</li>
+  </ul>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>CollectD</h2>
+<p align="left"><strong>apt-get install collectd</p></strong>
+<font size="6">
+  <pre><code>
+#/etc/collectd/collectd.conf      
+LoadPlugin write_graphite
+<Plugin write_graphite>
+        <Node "example">
+        Host "localhost"
+                Port "2003"
+                Protocol "udp"
+                LogSendErrors true
+                Prefix "collectd."
+                StoreRates true
+                AlwaysAppendDS false
+                EscapeCharacter "_"
+        </Node>
+</Plugin>
+   </pre></code>
+</font>
+<aside class="notes">
+103 Plugins: sensors, thermal, postgres, varnish, etc. Most of them read plugins.
+</aside>
+</section>
+
+<section>
+  <h2>CollectD Generates Graphs</h2>
+  <img class="stretch" src="./images/collectd.png"></img>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Curl </h2>
+  <font size="6">
+  <pre><code>
+curl -X POST http://GRAPHITE_URL/events/ \
+-d '{"what": "Ansible Jekyll Role", "tags": "Playbook"}''
+  </code></pre>
+
+  <pre><code>
+  drawAsInfinite(events("Playbook"))
+  </code></pre>
+  </font>
+  <p><img class="stretch" src="./images/playbook.png"></img>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Python</h2>
+  <font size="6">
+  <pre><code>
+import argparse
+
+parser = argparse.ArgumentParser(description='Send num processes to StatsD')
+parser.add_argument('servername', metavar='S', type=str,
+help='The server that is generating this process list.')
+
+args = parser.parse_args()
+
+ps = subprocess.Popen(('ps', 'aux'), stdout=subprocess.PIPE)
+output = subprocess.check_output(('wc', '-l'), stdin=ps.stdout)
+
+output = re.match(r'(?:^\s*)(\d.*$)', output).group(1)
+
+c = statsd.StatsClient('STATSD_URL', 8125)
+
+c.gauge('{}.processes'.format(args.servername), output)
+
+print output
+</code></pre>
+</font>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Ruby</h2>
+<font size="6">
+<pre><code>
+def self.query(search_item="pizza")
+  starttime = Time.now
+  result = Twitter.search(search_item, :count => 10, :result_type => "recent").results.first
+  tweettime = ((Time.now - starttime) * 1000).to_i
+  METRICS.timing('tweetsearch.query', tweettime)
+  return result
+end
+</code></pre>
+</font>
+<aside class="notes">
+METRICS constant set in initializer.
+</aside>
+</section>
+
+<section>
+  <h2>Gith Webhook</h2>
+  <ul>
+  <li>npm install gith</li>
+  <li>npm install request</li>
+  <li>npm install node-statsd</li>
+  <li>npm install forever</li>
+  <li>forever start hook.js</li>
+  </ul>
+<aside class="notes">
+Send both Events and Metrics
+</aside>
+</section>
+
+<section>
+  <h2>Gith hook.js file</h2>
+<font size="5">
+  <pre><code>
+var gith = require('gith').create( 9001 );
+var execFile = require('child_process').execFile;
+var request = require('request');
+var StatsD = require('node-statsd').StatsD,
+      client = new StatsD('127.0.0.1',8125)
+
+gith({
+  repo: '*'
+}).on( 'all', function( payload ) {
+  console.log( 'Post-receive happened!' );
+
+  request.post(
+      'http://automationsupport:code-as-rax-chef@127.0.0.1/events/',
+      { json: { what: "Git Push" , tags: "Push,"  + payload.repo + ',' + payload.pusher } },
+      function (error, response, body) {
+         console.log(body)
+      }
+  );
+
+//  client.gauge('push.' + payload.pusher + '.' + payload.repo, payload.files.all.length);
+
+  execFile('./hook.sh', function(error, stdout, stderr) {
+          // Log success in some manner
+          console.log( 'exec complete' );
+  });
+
+});
+</pre></code>
+</font>
+<aside class="notes">
+Send both Events and Metrics
+</aside>
+</section>
+
+<section>
+  <h2>GitHub Setup</h2>
+<p><img class="stretch" src="./images/webhook.png"></img></p>
+<aside class="notes">
+Send both Events and Metrics
+</aside>
+</section>
+
+<section>
+  <h2>Events Page In Graphite</h2>
+<p><img src="./images/events.png"></img></p>
+
+<p align="left">Also creates:</p>
+
+<pre>target=stats.gauges.push.mattjbarlow.mattjbarlow-blog</pre>
+<aside class="notes">
+Send both Events and Metrics. You can put a star on the user or repo to get an overlay comparison.
+</aside>
+</section>
+
+<section>
+  <h2>Historical Data</h2>
+<font size="6">
+<pre><code>
+TCP_IP = 'CARBON_IP'
+TCP_PORT = 2003
+github_user = ''
+events_url = 'https://api.github.com/users/' + github_user + '/events'
+
+r = requests.get(events_url)
+
+for i in r.json():
+    if i['type'] == 'PushEvent':
+        git_time = i['created_at']
+        dt = time.strptime(git_time, "%Y-%m-%dT%H:%M:%SZ")
+        timestamp = time.mktime(dt)
+        
+        s = socket.socket()
+        s.connect((TCP_IP, TCP_PORT))
+        message = "github.{}.{} 1 {}\n".format(i['actor']['login'],i['repo']['name'], \
+                                               int(timestamp))
+        print message
+        s.sendall(message)
+        s.close()
+</code></pre>
+</font>
+<aside class="notes">
+</aside>
+</section>
+
+
+<section data-background="./images/deconstruction.jpg" class="bg">
+  <h2>Deconstruction</h2>
+  <ul>
+    <li>Graphite</li>
+    <li>StatsD</li>
+    <li>Gotchas</li>
+  </ul>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Graphite Directory Overview</h2>
+  <img class="stretch" src="./images/graphite_directory.png"></img>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>storage-schemas.conf</h2>
+<p>Lives in /opt/graphite/conf</p>
+<pre><code>
+[stats]
+priority = 110
+pattern = ^stats\..*
+retentions = 10s:6h,1m:7d,10m:1y
+</code></pre>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>storage-aggregation.conf</h2>
+<p>Lives in /opt/graphite/conf</p>
+<pre><code>
+[default_average]
+pattern = .*
+xFilesFactor = 0.5
+aggregationMethod = average
+</code></pre>
+<aside class="notes">
+name: Arbitrary unique name for the rule pattern: Regex pattern to
+match against the metric name
+xFilesFactor: Ratio of valid data points
+required for aggregation to the next retention to occur
+aggregationMethod: function to apply to data points for aggregation
+</aside>
+</section>
+
+<section>
+  <h2>The Whisper Databases</h2>
+<p>In /opt/graphite/storage/whisper</p>
+<pre><code>
+drwxr-xr-x 3 root root 4096 May  3 14:17 carbon
+drwxr-xr-x 4 root root 4096 May  3 14:18 stats
+drwxr-xr-x 3 root root 4096 May  3 14:18 stats_counts
+drwxr-xr-x 2 root root 4096 May  3 14:18 statsd
+</code></pre>
+<font size="6">
+<pre><code class="stretch">
+graphite/storage/whisper/carbon/agents/graphited01-a/metricsReceived.wsp
+</code></pre>
+<pre><code>
+http://graphite.example.com/render?target=carbon.agents.graphite01-a.metricsReceived
+</pre></code>
+</font>
+<p><img src="./images/metrics_collected.png"</img></p>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Graphite Startup</h2>
+  <p align="left">Start carbon:</p>
+  <pre><code>/opt/graphite/bin/carbon-cache.py start --logdir=/var/log/carbon</code></pre>
+
+  <p align="left">Start django:</p>
+  <font size="6">
+  <pre><code>python /opt/graphite/webapp/graphite/manage.py runserver 192.168.0.1:80</code></pre>
+  </font>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Important StatsD Files</h2>
+  <img class="stretch" src="./images/statsd_files.png"></img>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Starting StatsD</h2>
+  <font size="6">
+  <pre><code>node /opt/statsd/stats.js /opt/statsd/localConfig.js 2>&1 >> /var/log/statsd.log</code></pre>
+  </font>
+<aside class="notes">
+</aside>
+</section>
+
+
+<section data-background="./images/bullseye.png" class="bg">
+  <h2>Gotchas</h2>
+  <ul>
+    <li>Retention Rate and Flush Interval</li>
+    <li>Storage Aggregation and Downsampling</li>
+    <li>UDP vs. TCP Port</li>
+    <li>Metrics Names</li>
+    <li>Two Entries for Counters</li>
+  </ul>
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Retention Rate / Flush Interval</h2>
+   <p align="left">The smallest retention rate in Graphite must match the Flush
+    Interval in StatsD</p>
+   <p><strong>storage-schemas.conf</strong></p>
+   <p><img src="./images/localConfig.png"></img></p>
+   <p><strong>localConfig.js</strong></p>
+   <p><img src="./images/config.png"></img></p>
+<aside class="notes">
+Carbon will only write the stats once per retention period.
+</aside>
+</section>
+
+<section>
+  <h2>Downsampling</h2>
+  <ul>
+    <li>Graphite averages downsamples by default</li>
+    <li>You should use averages for gauges and timers, but sums for
+    counters</li>
+  </ul>
+  <p><strong>storage-aggregation.conf</strong></p>
+   <p><img src="./images/aggregation.png"></img></p>
+  
+<aside class="notes">
+</aside>
+</section>
+
+<section>
+  <h2>Send To The Right Port</h2>
+  <ul>
+    <li>StatsD has a separate TCP and UDP Listening Process</li>
+    <li>Don't forget the 'u' flag in netstat -utlnp</li>
+  </ul>
+<aside class="notes">
+</aside>
+</section>
+<section>
+  <h2>Two Entries for One Counter</h2>
+  <ul>
+    <li>stats.countername normalizes the flush interval</li>
+    <li>stats_counts.countername is the total count received within the
+    flush interval</li>
+    <li>Set ^stats_counts\..* to aggregationMethod = Sum</li>
+  </ul>
+<aside class="notes">
+If you send seven increments within 10s, stats will send 0.7, and stats_counts will send 7.
+</aside>
+</section>
+
+
+<section>
+  <h2>What's Next?</h2>
+  <p>
+    Like Automating? Want to work at Rackspace? PM me on Twitter
+    @mattjbarlow
+  </p>
+</section>
+            </div>
+    </div>
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      progress: false,
+      history: true,
+      center: true,
+      transition: "none",
+      controls: false,
+
+      theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+
+      // Parallax scrolling
+      // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+      // parallaxBackgroundSize: '2100px 900px',
+
+      // Optional libraries used to extend on reveal.js
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+      ]
+      });
+
+    </script>
+
+ 
+    <!-- <script> -->
+    <!--     // Required, even if empty. -->
+    <!--     Reveal.initialize({ -->
+    <!-- 	  transition: "none", -->
+    <!-- 	  controls: false -->
+    <!--     }); -->
+    <!-- </script> -->
+</body>
+</html>
